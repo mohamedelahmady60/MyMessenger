@@ -101,7 +101,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             }
             
             print("successfully signed in with google credential")
-            //TODO: dont forget the notification here
+            // fire the notification so the loginview can dismisses itself
+            NotificationCenter.default.post(name: .didLoginNotification, object: nil)
         }
 
     }

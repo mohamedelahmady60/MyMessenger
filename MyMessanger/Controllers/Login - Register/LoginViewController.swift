@@ -94,12 +94,26 @@ class LoginViewController: UIViewController {
         return button
     }()
  
-    
+    //MARK: - login observer var
+    private var loginObserver: NSObjectProtocol?
     
     
     //MARK: - ViewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //observe the notification so this view can listen to the notification that appDelegate will fire it
+        loginObserver = NotificationCenter.default.addObserver(forName: .didLoginNotification,
+                                                               object: nil,
+                                                               queue: .main) { [weak self] (_) in
+            
+            guard let strongSelf = self else {
+                return
+            }
+            
+            strongSelf.navigationController?.dismiss(animated: true, completion: nil)
+        }
+        
         
         //set the textFields delegates
         emailTextField.delegate = self
@@ -140,6 +154,13 @@ class LoginViewController: UIViewController {
         scrollView.addSubview(facebookLoginButton)
         scrollView.addSubview(googleLoginButton)
 
+    }
+    
+    //MARK: - deinit
+    deinit {
+        if let observer = loginObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
     
     
@@ -339,6 +360,7 @@ extension LoginViewController: LoginButtonDelegate {
                 
                 guard authResult != nil, error == nil else {
                     print("facebook credential login failed, MFA may be nedded")
+                    print(error.debugDescription)
                     return
                 }
                 

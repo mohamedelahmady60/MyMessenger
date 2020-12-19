@@ -6,25 +6,32 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class RegisterViewController: UIViewController {
     
     //MARK: - Variables
     private enum AlerType: Int {
-        case LoginInvalidPassword = 0
-        case LoginEmptyData = 1
+        case loginInvalidPassword = 0
+        case loginEmptyData = 1
+        case emailAlreadyExists
     }
 
-    private var alerts: [Alert] = []
-
-    
+    private var alerts: [Alert] = [
+        Alert(tille: "Invalid Passsword", message: "Password must be at least 6 characters long"),
+        Alert(tille: "Invalid Data", message: "Pleasr enter all information to create a new account"),
+        Alert(tille: "Invalid Email", message: "This email address already exists!")
+    ]
     
     //MARK: - images
     private let userImageView: UIImageView = {
         let imageview = UIImageView()
-        imageview.image = UIImage(systemName: "person")
+        imageview.image = UIImage(systemName: "person.circle")
         imageview.tintColor = .gray
         imageview.contentMode = .scaleAspectFit
+        imageview.layer.masksToBounds = true
+        imageview.layer.borderWidth = 2
+        imageview.layer.borderColor = UIColor.lightGray.cgColor
         return imageview
     }()
     
@@ -126,11 +133,6 @@ class RegisterViewController: UIViewController {
         emailTextField.delegate = self
         passwordTextField.delegate = self
         
-        //set alerts
-        alerts.append(Alert(tille: "Invalid Passsword", message: "Password must be at least 6 characters long"))
-        alerts.append(Alert(tille: "Invalid Data", message: "Pleasr enter all information to create a new account"))
-
-        
         //set the navigation title and the view color
         title = "Register"
         view.backgroundColor = .white
@@ -165,12 +167,13 @@ class RegisterViewController: UIViewController {
         //scroll view frame
         scrollView.frame = view.bounds
         
-        //logo image view frame
+        //user image view frame
         let size = view.width / 3.0
         userImageView.frame = CGRect(x: (scrollView.width - size) / 2.0 ,
                                      y: 20,
                                      width: size,
                                      height: size )
+        userImageView.layer.cornerRadius = userImageView.width / 2.0
         
         //first name text field fram
         firstNameTextField.frame = CGRect(x: 30 ,
@@ -211,16 +214,17 @@ class RegisterViewController: UIViewController {
     //MARK: - Actions
     
     @objc private func didTapChangeProfilePic() {
-        print("Changed pic called")
+        presentPhotoActionSheet()
     }
+    
+    
     @objc private func didTapRegisterButton (){
         //remove the keyboard
         firstNameTextField.resignFirstResponder()
         lastNameTextField.resignFirstResponder()
         emailTextField.resignFirstResponder()
         passwordTextField.resignFirstResponder()
-
-                
+        
         //if there is no data entered
         guard let firstName = firstNameTextField.text,
               let lastName = lastNameTextField.text,
@@ -232,18 +236,50 @@ class RegisterViewController: UIViewController {
               !password.isEmpty
         else {
             //alert the user
-            alertTheUser(alertType: .LoginEmptyData)
+            alertTheUser(alertType: .loginEmptyData)
             return
         }
         
         //if invalid password
         guard password.count >= 6 else {
-            alertTheUser(alertType: .LoginInvalidPassword)
+            alertTheUser(alertType: .loginInvalidPassword)
             return
         }
         
-        //TODO: Firebase Registeration
-        print("Registerd")
+        
+        //check if the user email already exists
+        DatabaseManager.shared.userExists(with: email , completion: { [weak self] exists in
+            
+            guard let strongSelf = self else {
+                return
+            }
+
+            //if the user exists
+            guard !exists else {
+                strongSelf.alertTheUser(alertType: .emailAlreadyExists)
+                return
+            }
+            
+            //create a user acoount
+            Auth.auth().createUser(withEmail: email, password: password, completion: { authresult , error in
+                guard authresult != nil, error == nil else {
+                    print("Error Creating new User\(error.debugDescription)")
+                    return
+                }
+                
+                // save the user data in the database
+                DatabaseManager.shared.insertUser(with: ChatAppUser(firstName: firstName,
+                                                                    lastName: lastName,
+                                                                    emailAddress: email))
+                //Dismiss the register view to get back to conversations view
+                strongSelf.navigationController?.dismiss(animated: true, completion: nil)
+            })
+            
+            
+        })
+        
+        
+        //TODO: Complete register checks
         
         
     }
@@ -282,4 +318,79 @@ extension RegisterViewController: UITextFieldDelegate {
         return true
     }
     
+}
+
+
+//MARK: - Image Picker delegate methods
+extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate{
+    
+    //present action sheet to ask the user the way he whould like to upload his profile picture
+    func presentPhotoActionSheet() {
+        let actionSheet  = UIAlertController(title: "Profile picture",
+                                             message: "How would you like to select a picture",
+                                             preferredStyle: .actionSheet)
+        
+        //cancel button
+        actionSheet.addAction(UIAlertAction(title: "Cancel",
+                                            style: .cancel,
+                                            handler: nil))
+        //camera option
+        actionSheet.addAction(UIAlertAction(title: "Take photo",
+                                            style: .default,
+                                            handler: { [weak self] _ in
+            self?.presentCamera()
+        }))
+        //photos library option
+        actionSheet.addAction(UIAlertAction(title: "Choose photo",
+                                            style: .default,
+                                            handler: { [weak self] _ in
+            self?.presentPhotoPicker()
+        }))
+        present(actionSheet, animated: true)
+    }
+    
+    
+    func presentCamera() {
+        //go to image picker controller with source type .camera
+        let vc = UIImagePickerController()
+        //to open the camera
+        vc.sourceType = .camera
+        vc.delegate = self
+        //to crop a square out of the image
+        vc.allowsEditing = true
+        present(vc, animated: true)
+    }
+    
+    func presentPhotoPicker() {
+        //go to image picker controller with source type .photoLibrary
+        let vc = UIImagePickerController()
+        //to open the photo library
+        vc.sourceType = .photoLibrary
+        vc.delegate = self
+        //to crop a square out of the image
+        vc.allowsEditing = true
+        present(vc, animated: true)
+    }
+    
+    //when user canels taking photo or photo selection
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true, completion: nil)
+    }
+    
+    //when the user takes a phote or selects a photo
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        //we can grab the image from inside the dictionary info
+        
+        //this will choose the cropped image if we allows editing
+        guard let selectedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage else {
+            return
+        }
+        //this will choose the original image (full image)
+        //let selectedImage = info[UIImagePickerController.InfoKey.originalImage]
+
+        //update the user image view
+        self.userImageView.image = selectedImage
+        //dismiss the picker view
+        picker.dismiss(animated: true, completion: nil)
+    }
 }

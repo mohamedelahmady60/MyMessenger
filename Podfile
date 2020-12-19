@@ -5,8 +5,20 @@ target 'MyMessanger' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
 
-  # Pods for MyMessanger
+# firebase
+pod 'Firebase/Core'
+pod 'Firebase/Auth'
+pod 'Firebase/Database'
 
+# Facebook sign in 
+pod 'FBSDKLoginKit'
+
+# Google sign in 
+pod 'GoogleSignIn'
+    
+
+
+  # Pods for MyMessanger
   target 'MyMessangerTests' do
     inherit! :search_paths
     # Pods for testing

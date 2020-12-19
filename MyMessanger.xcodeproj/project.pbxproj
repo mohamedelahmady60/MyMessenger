@@ -26,6 +26,7 @@
 		8E65CE4A258A5EDD00C15E21 /* NewConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E65CE49258A5EDD00C15E21 /* NewConversationViewController.swift */; };
 		8E65CE4F258A5EF100C15E21 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E65CE4E258A5EF100C15E21 /* ProfileViewController.swift */; };
 		8E65CE58258A709300C15E21 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E65CE57258A709200C15E21 /* Extensions.swift */; };
+		8EF0B93B258E92A500CF3A9A /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EF0B93A258E92A500CF3A9A /* ChatViewController.swift */; };
 		B48EC44611551877B9B0E6FF /* Pods_MyMessanger.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F5954EE201BB7F14773A2127 /* Pods_MyMessanger.framework */; };
 		DEFD870D2A103C02BD8C576C /* Pods_MyMessanger_MyMessangerUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27F829CF7933DC098FFAC42C /* Pods_MyMessanger_MyMessangerUITests.framework */; };
 /* End PBXBuildFile section */
@@ -78,6 +79,7 @@
 		8E65CE49258A5EDD00C15E21 /* NewConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConversationViewController.swift; sourceTree = "<group>"; };
 		8E65CE4E258A5EF100C15E21 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		8E65CE57258A709200C15E21 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		8EF0B93A258E92A500CF3A9A /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		E0FAEF2172AF139F633A665D /* Pods-MyMessanger-MyMessangerUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyMessanger-MyMessangerUITests.debug.xcconfig"; path = "Target Support Files/Pods-MyMessanger-MyMessangerUITests/Pods-MyMessanger-MyMessangerUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		E5D96777749DF7912BE8E545 /* Pods_MyMessangerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MyMessangerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F5954EE201BB7F14773A2127 /* Pods_MyMessanger.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MyMessanger.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -174,6 +176,7 @@
 				8E65CE44258A5EBB00C15E21 /* VideoPlayerViewController.swift */,
 				8E65CE49258A5EDD00C15E21 /* NewConversationViewController.swift */,
 				8E65CE4E258A5EF100C15E21 /* ProfileViewController.swift */,
+				8EF0B93A258E92A500CF3A9A /* ChatViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -538,6 +541,7 @@
 				8E65CDF2258A582200C15E21 /* AppDelegate.swift in Sources */,
 				8E65CE4F258A5EF100C15E21 /* ProfileViewController.swift in Sources */,
 				8E1A6AFC258BFDED0068DC39 /* DatabaseManager.swift in Sources */,
+				8EF0B93B258E92A500CF3A9A /* ChatViewController.swift in Sources */,
 				8E338558258AD29100AB67A6 /* Alert.swift in Sources */,
 				8E65CDF4258A582200C15E21 /* SceneDelegate.swift in Sources */,
 				8E65CE40258A5EA600C15E21 /* PhotoViewerViewController.swift in Sources */,

@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseAuth
+import JGProgressHUD
 
 class RegisterViewController: UIViewController {
     
@@ -16,7 +17,7 @@ class RegisterViewController: UIViewController {
         case loginEmptyData = 1
         case emailAlreadyExists
     }
-
+    
     private var alerts: [Alert] = [
         Alert(tille: "Invalid Passsword", message: "Password must be at least 6 characters long"),
         Alert(tille: "Invalid Data", message: "Pleasr enter all information to create a new account"),
@@ -74,8 +75,8 @@ class RegisterViewController: UIViewController {
         textField.leftViewMode = .always
         return textField
     }()
-
-
+    
+    
     
     private let emailTextField: UITextField = {
         let textField = UITextField()
@@ -121,6 +122,10 @@ class RegisterViewController: UIViewController {
         button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
         return button
     }()
+    
+    
+    //MARK: - spinner
+    private let spinner = JGProgressHUD(style: .dark)
     
     
     //MARK: - viewDidLoad
@@ -186,7 +191,7 @@ class RegisterViewController: UIViewController {
                                          y: firstNameTextField.bottom + 10,
                                          width: firstNameTextField.width,
                                          height: firstNameTextField.height)
-
+        
         
         
         //Email text field frame
@@ -203,9 +208,9 @@ class RegisterViewController: UIViewController {
         
         //login button frame
         registerButton.frame = CGRect(x: firstNameTextField.left ,
-                                   y: passwordTextField.bottom + 10,
-                                   width: firstNameTextField.width,
-                                   height: firstNameTextField.height)
+                                      y: passwordTextField.bottom + 10,
+                                      width: firstNameTextField.width,
+                                      height: firstNameTextField.height)
         
         
     }
@@ -246,14 +251,19 @@ class RegisterViewController: UIViewController {
             return
         }
         
+        //show the spinner
+        spinner.show(in: view)
         
         //check if the user email already exists
         DatabaseManager.shared.userExists(with: email , completion: { [weak self] exists in
-            
             guard let strongSelf = self else {
                 return
             }
-
+            
+            DispatchQueue.main.async {
+                strongSelf.spinner.dismiss()
+            }
+            
             //if the user exists
             guard !exists else {
                 strongSelf.alertTheUser(alertType: .emailAlreadyExists)
@@ -293,7 +303,7 @@ class RegisterViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         present(alert, animated: true)
     }
-
+    
 }
 
 
@@ -338,14 +348,14 @@ extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationC
         actionSheet.addAction(UIAlertAction(title: "Take photo",
                                             style: .default,
                                             handler: { [weak self] _ in
-            self?.presentCamera()
-        }))
+                                                self?.presentCamera()
+                                            }))
         //photos library option
         actionSheet.addAction(UIAlertAction(title: "Choose photo",
                                             style: .default,
                                             handler: { [weak self] _ in
-            self?.presentPhotoPicker()
-        }))
+                                                self?.presentPhotoPicker()
+                                            }))
         present(actionSheet, animated: true)
     }
     
@@ -387,7 +397,7 @@ extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationC
         }
         //this will choose the original image (full image)
         //let selectedImage = info[UIImagePickerController.InfoKey.originalImage]
-
+        
         //update the user image view
         self.userImageView.image = selectedImage
         //dismiss the picker view

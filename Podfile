@@ -15,7 +15,20 @@ pod 'FBSDKLoginKit'
 
 # Google sign in 
 pod 'GoogleSignIn'
-    
+
+# Chat user interface 
+pod 'MessageKit' 
+
+# helps you to show a nice spinner 
+pod 'JGProgressHUD' 
+
+# database to store the chats   
+pod 'RealmSwift' 
+
+# image loading capability
+pod 'SDWebImage' 
+
+
 
 
   # Pods for MyMessanger

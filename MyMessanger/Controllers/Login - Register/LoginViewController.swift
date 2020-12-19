@@ -9,6 +9,7 @@ import UIKit
 import FirebaseAuth
 import FBSDKLoginKit
 import GoogleSignIn
+import JGProgressHUD
 
 class LoginViewController: UIViewController {
     
@@ -96,6 +97,9 @@ class LoginViewController: UIViewController {
  
     //MARK: - login observer var
     private var loginObserver: NSObjectProtocol?
+    
+    //MARK: - spinner
+    private let spinner = JGProgressHUD(style: .dark)
     
     
     //MARK: - ViewDidLoad
@@ -235,8 +239,19 @@ class LoginViewController: UIViewController {
             return
         }
         
+        //show the spinner
+        spinner.show(in: view)
+        
+        
+        //sign the user in firebase
         Auth.auth().signIn(withEmail: email, password: password, completion: { [weak self] authResult, error in
             guard let strongSelf = self else { return }
+            
+            //dismiss the spinner
+            DispatchQueue.main.async {
+                strongSelf.spinner.dismiss()
+            }
+            
             guard let result = authResult, error == nil else {
                 return
             }
@@ -337,6 +352,9 @@ extension LoginViewController: LoginButtonDelegate {
             let firstName = nameComponents[0]
             let lastName = nameComponents[1]
             
+            //show the spinner
+            self.spinner.show(in: self.view)
+
             
             //check if this user is exists in the database
             DatabaseManager.shared.userExists(with: email) { (exists) in
@@ -358,9 +376,15 @@ extension LoginViewController: LoginButtonDelegate {
                     return
                 }
                 
+                DispatchQueue.main.async {
+                    strongSelf.spinner.dismiss()
+                }
+                
+                
                 guard authResult != nil, error == nil else {
                     print("facebook credential login failed, MFA may be nedded")
-                    print(error.debugDescription)
+                    print(error.debugDescription
+                    )
                     return
                 }
                 

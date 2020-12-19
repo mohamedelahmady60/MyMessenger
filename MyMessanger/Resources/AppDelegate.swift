@@ -51,7 +51,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
     }
 
     
-    //MARK: - GIDSignInDelegate
+    //MARK: - google sign in
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
       
         if let  error = error {
@@ -68,7 +68,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             
             return
         }
-        
         
         //check if this user is exists in the database
         DatabaseManager.shared.userExists(with: email) { (exists) in

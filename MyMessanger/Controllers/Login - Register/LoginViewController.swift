@@ -94,7 +94,7 @@ class LoginViewController: UIViewController {
         
         return button
     }()
- 
+    
     //MARK: - login observer var
     private var loginObserver: NSObjectProtocol?
     
@@ -128,7 +128,7 @@ class LoginViewController: UIViewController {
         
         //google sign in
         GIDSignIn.sharedInstance()?.presentingViewController = self
-
+        
         
         
         //set title and view color
@@ -157,7 +157,7 @@ class LoginViewController: UIViewController {
         scrollView.addSubview(loginButton)
         scrollView.addSubview(facebookLoginButton)
         scrollView.addSubview(googleLoginButton)
-
+        
     }
     
     //MARK: - deinit
@@ -207,9 +207,9 @@ class LoginViewController: UIViewController {
         
         //Google login button
         googleLoginButton.frame = CGRect(x: emailTextField.left ,
-                                           y: facebookLoginButton.bottom + 10,
-                                           width: emailTextField.width,
-                                           height: emailTextField.height)
+                                         y: facebookLoginButton.bottom + 10,
+                                         width: emailTextField.width,
+                                         height: emailTextField.height)
         
     }
     
@@ -323,7 +323,8 @@ extension LoginViewController: LoginButtonDelegate {
         
         //create a facebook request to get the user facebook email and name
         let facebookrequest = FBSDKLoginKit.GraphRequest(graphPath: "me",
-                                                         parameters: ["fields": "email, name"],
+                                                         parameters: ["fields":
+                                                                        "email, first_name, last_name, picture.type(large)"],
                                                          tokenString: token,
                                                          version: nil,
                                                          httpMethod: .get)
@@ -333,36 +334,67 @@ extension LoginViewController: LoginButtonDelegate {
                 print("Failed to make facebook graph request")
                 return
             }
-            
-            //TODO: we need to update this part of code
-            //seperate the email and the user name
-            guard let userName = result["name"] as? String,
-                  let email = result["email"] as? String else {
+            //get the email, first name, last name and the picture URL
+            guard let email = result["email"] as? String,
+                  let firstName = result["first_name"] as? String,
+                  let lastName = result["last_name"] as? String,
+                  let profileImageObject = result["picture"] as? [String: Any],
+                  let profileImageObjectData = profileImageObject["data"] as? [String: Any],
+                  let profileImageObjectURLString = profileImageObjectData["url"] as? String else {
                 
                 print("Failed to get email and name from facebook results ")
                 return
             }
             
-            
-            let nameComponents = userName.components(separatedBy: " ")
-            guard nameComponents.count == 2 else {
-                return
-            }
-            
-            let firstName = nameComponents[0]
-            let lastName = nameComponents[1]
-            
             //show the spinner
             self.spinner.show(in: self.view)
-
+            
             
             //check if this user is exists in the database
             DatabaseManager.shared.userExists(with: email) { (exists) in
                 //if doesn't exist add it to the data base and complete the code to log him in
                 if !exists {
-                    DatabaseManager.shared.insertUser(with: ChatAppUser(firstName: firstName,
-                                                                        lastName: lastName,
-                                                                        emailAddress: email))
+                    let chatAppUser = ChatAppUser(firstName: firstName,
+                                                  lastName: lastName,
+                                                  emailAddress: email)
+                    DatabaseManager.shared.insertUser(with: chatAppUser) { (success) in
+                        if success {
+                            //Upload Image
+                            
+                            print("Downloading the image from facebook")
+                            //download the facebook profile picture from the url we got
+                            guard let profileImageURL = URL(string: profileImageObjectURLString) else {
+                                return
+                            }
+                            URLSession.shared.dataTask(with: profileImageURL) { (data, _, _) in
+                                guard let data = data else {
+                                    print("Failed to download the image data from facebook")
+                                    return
+                                }
+                                
+                                print("Got the image data, Uploading...")
+                                
+                                let fileName = chatAppUser.profilePictureFileName
+                                //upload the picture
+                                StrorageManager.shared.uploadProfilePicture(with: data,
+                                                                            fileName: fileName) { (result) in
+                                    
+                                    switch result {
+                                    case .success(let downloadURL):
+                                        UserDefaults.standard.setValue(downloadURL, forKey: "Profile_Picture_URL")
+                                        print(downloadURL)
+                                    case .failure(let error):
+                                        print("Storage manager error : \(error)")
+                                    }
+                                    
+                                }
+                                
+                            }.resume()
+                            
+                        }
+                        
+                    }
+                    
                 }
                 //else if he exists complete the login in without saving the user data
             }

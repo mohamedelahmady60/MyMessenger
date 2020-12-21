@@ -278,9 +278,37 @@ class RegisterViewController: UIViewController {
                 }
                 
                 // save the user data in the database
-                DatabaseManager.shared.insertUser(with: ChatAppUser(firstName: firstName,
-                                                                    lastName: lastName,
-                                                                    emailAddress: email))
+                let chatAppUser = ChatAppUser(firstName: firstName,
+                                               lastName: lastName,
+                                               emailAddress: email)
+                DatabaseManager.shared.insertUser(with: chatAppUser) { (success) in
+                    if success {
+                        //get the png data so we can upload the image
+                        guard let image = strongSelf.userImageView.image,
+                              let data = image.pngData() else {
+                            return
+                        }
+                        
+                        //get the file name for the user
+                        let fileName = chatAppUser.profilePictureFileName
+                        //upload the picture
+                        StrorageManager.shared.uploadProfilePicture(with: data,
+                                                                    fileName: fileName) { (result) in
+                            
+                            switch result {
+                            case .success(let downloadURL):
+                                UserDefaults.standard.setValue(downloadURL, forKey: "Profile_Picture_URL")
+                                print(downloadURL)
+                            case .failure(let error):
+                                print("Storage manager error : \(error)")
+                            }
+                            
+                        }
+                    }
+                }
+                
+                
+                
                 //Dismiss the register view to get back to conversations view
                 strongSelf.navigationController?.dismiss(animated: true, completion: nil)
             })

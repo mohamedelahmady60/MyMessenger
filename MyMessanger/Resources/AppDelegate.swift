@@ -17,7 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-          
+        
         //configure the fire base
         FirebaseApp.configure()
         
@@ -34,13 +34,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         
         return true
     }
-          
+    
     func application(
         _ app: UIApplication,
         open url: URL,
         options: [UIApplication.OpenURLOptionsKey : Any] = [:]
     ) -> Bool {
-
+        
         ApplicationDelegate.shared.application(
             app,
             open: url,
@@ -49,11 +49,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         )
         return GIDSignIn.sharedInstance().handle(url)
     }
-
+    
     
     //MARK: - google sign in
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
-      
+        
         if let  error = error {
             print("Failed to sign in with google: \(error)")
             return
@@ -64,7 +64,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         //get the user information
         guard let email = user.profile.email,
               let firstName = user.profile.givenName,
-              let lastName = user.profile.familyName else {
+              let lastName = user.profile.familyName,
+              user.profile.hasImage == true,
+              let profileImageURL = user.profile.imageURL(withDimension: 200)  else {
             
             return
         }
@@ -73,13 +75,43 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         DatabaseManager.shared.userExists(with: email) { (exists) in
             //if doesn't exist add it to the data base and complete the code to log him in
             if !exists {
-                DatabaseManager.shared.insertUser(with: ChatAppUser(firstName: firstName,
-                                                                    lastName: lastName,
-                                                                    emailAddress: email))
+                let chatAppUser = ChatAppUser(firstName: firstName,
+                                              lastName: lastName,
+                                              emailAddress: email)
+                DatabaseManager.shared.insertUser(with: chatAppUser) { (success) in
+                    if success{
+                        //Upload the profile image
+                        
+                        //download the image data
+                        URLSession.shared.dataTask(with: profileImageURL) { (data, _, _) in
+                            guard let data = data else {
+                                return
+                            }
+                            let fileName = chatAppUser.profilePictureFileName
+                            //upload the picture
+                            StrorageManager.shared.uploadProfilePicture(with: data,
+                                                                        fileName: fileName) { (result) in
+                                
+                                switch result {
+                                case .success(let downloadURL):
+                                    UserDefaults.standard.setValue(downloadURL, forKey: "Profile_Picture_URL")
+                                    print(downloadURL)
+                                case .failure(let error):
+                                    print("Storage manager error : \(error)")
+                                }
+                                
+                            }
+                            
+                        }.resume()
+                        
+                    }
+                
+                }
+            
             }
             //else if he exists complete the login in without saving the user data
         }
-
+        
         //get the authentication from google
         guard let authentication = user.authentication else {
             print("Missing auth object of google user")
@@ -87,10 +119,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         }
         // get the credential
         let credential = GoogleAuthProvider.credential(withIDToken: authentication.idToken,
-                                                            accessToken: authentication.accessToken)
+                                                       accessToken: authentication.accessToken)
         
         
- 
+        
         // give the credential to the firebase so we can sign the in
         FirebaseAuth.Auth.auth().signIn(with: credential) {(authResult, error) in
             
@@ -103,9 +135,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             // fire the notification so the loginview can dismisses itself
             NotificationCenter.default.post(name: .didLoginNotification, object: nil)
         }
-
-    }
         
+    }
+    
     
     
     func sign(_ signIn: GIDSignIn!, didDisconnectWith user: GIDGoogleUser!, withError error: Error!) {
@@ -114,5 +146,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
     }
     
     
-
+    
 }

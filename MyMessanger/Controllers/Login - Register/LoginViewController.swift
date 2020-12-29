@@ -245,7 +245,9 @@ class LoginViewController: UIViewController {
         
         //sign the user in firebase
         Auth.auth().signIn(withEmail: email, password: password, completion: { [weak self] authResult, error in
-            guard let strongSelf = self else { return }
+            guard let strongSelf = self else {
+                return
+            }
             
             //dismiss the spinner
             DispatchQueue.main.async {
@@ -253,11 +255,38 @@ class LoginViewController: UIViewController {
             }
             
             guard let result = authResult, error == nil else {
+                print("Failed to log user in with email\(email)")
                 return
             }
             
             let user = result.user
             print("Logged in user: \(user)")
+            
+            // get the user name from the database so we can cach it with the email in the UserDefaults
+            let safeEmail = ChatAppUser.safeEmail(emailAddress: email)
+            DatabaseManager.shared.getDataForChild(childPath: safeEmail, completion: { result in
+                switch result{
+                case .success(let data):
+                    guard let userData = data as? [String: Any],
+                          let firstName = userData["first_name"] as? String,
+                          let lastName = userData["last_name"] as? String else {
+                        return
+                    }
+                    //save the user's name
+                    UserDefaults.standard.setValue("\(firstName) \(lastName)", forKey: "name")
+                case .failure(let error):
+                    print("Failed to read data: \(error)")
+                }
+                
+            })
+            
+            
+            
+            //save the user's email address
+            UserDefaults.standard.setValue(email, forKey: "email")
+
+
+            
             strongSelf.navigationController?.dismiss(animated: true, completion: nil)
             
             //TODO: complete login checks
@@ -345,6 +374,12 @@ extension LoginViewController: LoginButtonDelegate {
                 print("Failed to get email and name from facebook results ")
                 return
             }
+            
+            //save the user's email address and name
+            UserDefaults.standard.setValue(email, forKey: "email")
+            UserDefaults.standard.setValue("\(firstName) \(lastName)", forKey: "name")
+
+
             
             //show the spinner
             self.spinner.show(in: self.view)

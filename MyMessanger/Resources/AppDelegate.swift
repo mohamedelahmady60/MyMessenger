@@ -71,6 +71,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             return
         }
         
+        
+        //save the user's email address and name
+        UserDefaults.standard.setValue(email, forKey: "email")
+        UserDefaults.standard.setValue("\(firstName) \(lastName)", forKey: "name")
+
+
+        
         //check if this user is exists in the database
         DatabaseManager.shared.userExists(with: email) { (exists) in
             //if doesn't exist add it to the data base and complete the code to log him in

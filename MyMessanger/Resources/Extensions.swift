@@ -38,4 +38,5 @@ extension UIView {
 
 extension Notification.Name {
     static let didLoginNotification = Notification.Name("didLoginNotification")
+    static let refrechConversation = Notification.Name("refrechConversations")
 }

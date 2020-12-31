@@ -20,7 +20,8 @@ class NewConversationViewController: UIViewController {
     //MARK: - Table view
     private let tableView: UITableView = {
         let tableView = UITableView()
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(NewConversationTableViewCell.self,
+                           forCellReuseIdentifier: NewConversationTableViewCell.identifier)
         tableView.isHidden = true
         return tableView
     }()
@@ -42,10 +43,10 @@ class NewConversationViewController: UIViewController {
     //MARK: - users array
     private var users = [[String: String]]()
     private var hasFetchedUsers = false
-    private var results = [[String: String]]()
+    private var results = [SearchResults]()
     
     
-    public var completion: (([String: String]) -> (Void))?
+    public var completion: ((SearchResults) -> (Void))?
 
 
     
@@ -122,16 +123,17 @@ extension NewConversationViewController: UISearchBarDelegate {
     }
     
     
+    
     //search the users and update the table view
     private func searchUsers(query: String) {
         
-        //check if our user array has firebase results
+        // 1- check if we fetched the user before
         if hasFetchedUsers {
-            //if it does: filter
-            self.filterUsers(with: query)
+            //if it does: go and search for the query
+            self.filterUsers(searchName: query)
         }
         else {
-            //if not: fetch then filter
+            //if not: fetch the the users from database and then seach for the query
             DatabaseManager.shared.getAllUsers(completion: { [weak self] result in
                 switch result {
                 case .failure(let error):
@@ -139,26 +141,37 @@ extension NewConversationViewController: UISearchBarDelegate {
                 case .success(let usersCollection):
                     self?.hasFetchedUsers = true
                     self?.users = usersCollection
-                    self?.filterUsers(with: query)
+                    self?.filterUsers(searchName: query)
                 }
             })
         }
     }
     
     //filter the users according the search term
-    private func filterUsers(with term: String) {
-        guard hasFetchedUsers else {
+    private func filterUsers(searchName: String) {
+        
+        //1- get the current user email
+        guard hasFetchedUsers, let currentEmail = UserDefaults.standard.value(forKey: "email") as? String else {
             return
         }
-        
+        let currentSafeEmail = ChatAppUser.safeEmail(emailAddress: currentEmail)
         self.spinner.dismiss()
         
-        let results: [[String: String]] = self.users.filter({
-            guard let name = $0["name"]?.lowercased() else {
+        // search for the query
+        let results: [SearchResults] = self.users.filter({
+            guard let email = $0["email"], email != currentSafeEmail,
+                  let name = $0["name"]?.lowercased() else {
                 return false
             }
+            return name.hasPrefix(searchName.lowercased())
             
-            return name.hasPrefix(term.lowercased())
+        }).compactMap({
+            
+            guard let email = $0["email"],
+                  let name = $0["name"] else {
+                return nil
+            }
+            return SearchResults(recipientName: name, recipientEmail: email)
         })
         self.results = results
         
@@ -191,8 +204,10 @@ extension NewConversationViewController: UITableViewDelegate, UITableViewDataSou
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.textLabel?.text = self.results[indexPath.row]["name"]
+        let cell = tableView.dequeueReusableCell(withIdentifier: NewConversationTableViewCell.identifier,
+                                                 for: indexPath) as! NewConversationTableViewCell
+        let currentResultModel = results[indexPath.row]
+        cell.configure(with: currentResultModel)
         return cell
     }
     
@@ -206,4 +221,16 @@ extension NewConversationViewController: UITableViewDelegate, UITableViewDataSou
             self?.completion?(tergetUserData)
         })
     }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 90
+    }
+}
+
+
+
+//MARK: - Serach results Model
+struct SearchResults {
+    let recipientName: String
+    let recipientEmail: String
 }

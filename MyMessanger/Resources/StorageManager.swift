@@ -21,15 +21,14 @@ final class StrorageManager {
     /// upload the profile picture to firebase strogae and return a closure with URL string to download
     public func uploadProfilePicture(with data: Data, fileName: String, completion: @escaping UploadPictureCompletion) {
         
-        // upload the data
-        storage.child("images/\(fileName)").putData(data, metadata: nil, completion: { metaData, error in
+        // 1- upload the image data
+        storage.child("images/\(fileName)").putData(data, metadata: nil, completion: { [weak self] metaData, error in
             guard error == nil else {
                 completion(.failure(StorageErrors.failedToUpload))
                 return
             }
-            
-            
-            self.storage.child("images/\(fileName)").downloadURL(completion: { url, error in
+            // 2- get download url
+            self?.storage.child("images/\(fileName)").downloadURL(completion: { url, error in
                 
                 guard let downloadUrl = url else {
                     completion(.failure(StorageErrors.failedToGetDownloadURL))
@@ -44,18 +43,38 @@ final class StrorageManager {
     
     
     /// upload a picture  as a message to firebase strogae and return a closure with URL string to download
-    public func uploadMessagePhoto(with data: Data, fileName: String, completion: @escaping UploadPictureCompletion) {
+    public func uploadMessagePhoto(data: Data, fileName: String, completion: @escaping UploadPictureCompletion) {
         
-        // upload the data
-        storage.child("message_images/\(fileName)").putData(data, metadata: nil, completion: { metaData, error in
+        // 1- upload the image data
+        storage.child("message_images/\(fileName)").putData(data, metadata: nil, completion: { [weak self] metaData, error in
             guard error == nil else {
                 completion(.failure(StorageErrors.failedToUpload))
                 return
             }
-            
-            
-            self.storage.child("message_images/\(fileName)").downloadURL(completion: { url, error in
-                
+            // 2- get download url
+            self?.storage.child("message_images/\(fileName)").downloadURL(completion: { url, error in
+                guard let downloadUrl = url else {
+                    completion(.failure(StorageErrors.failedToGetDownloadURL))
+                    return
+                }
+                let downloadUrlString = downloadUrl.absoluteString
+                completion(.success(downloadUrlString))
+            })
+        })
+    }
+
+    
+    /// upload a Video  as a message to firebase strogae and return a closure with URL string to download
+    public func uploadMessageVideo(fileUrl: URL, fileName: String, completion: @escaping UploadPictureCompletion) {
+        
+        // 1- upload the video
+        storage.child("message_videos/\(fileName)").putFile(from: fileUrl, metadata: nil, completion: { [weak self] metaData, error in
+            guard error == nil else {
+                completion(.failure(StorageErrors.failedToUpload))
+                return
+            }
+            // 2- get download url
+            self?.storage.child("message_videos/\(fileName)").downloadURL(completion: { url, error in
                 guard let downloadUrl = url else {
                     completion(.failure(StorageErrors.failedToGetDownloadURL))
                     return
@@ -79,7 +98,7 @@ final class StrorageManager {
         }
     }
     
-}
+}// end of class
 
 
 //MARK: - StorageErrors enum

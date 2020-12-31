@@ -110,11 +110,10 @@ class LoginViewController: UIViewController {
         loginObserver = NotificationCenter.default.addObserver(forName: .didLoginNotification,
                                                                object: nil,
                                                                queue: .main) { [weak self] (_) in
-            
             guard let strongSelf = self else {
                 return
             }
-            
+            //ConversationsViewController.startListenToConversationsAgain = true
             strongSelf.navigationController?.dismiss(animated: true, completion: nil)
         }
         
@@ -279,15 +278,12 @@ class LoginViewController: UIViewController {
                 }
                 
             })
-            
-            
-            
+ 
             //save the user's email address
             UserDefaults.standard.setValue(email, forKey: "email")
-
-
-            
+            //ConversationsViewController.startListenToConversationsAgain = true
             strongSelf.navigationController?.dismiss(animated: true, completion: nil)
+            
             
             //TODO: complete login checks
             
@@ -340,7 +336,6 @@ extension LoginViewController: LoginButtonDelegate {
     func loginButtonDidLogOut(_ loginButton: FBLoginButton) {
         // do nothing
     }
-    
     
     //when the user completes logining in with facebook
     func loginButton(_ loginButton: FBLoginButton, didCompleteWith result: LoginManagerLoginResult?, error: Error?) {
@@ -421,15 +416,10 @@ extension LoginViewController: LoginButtonDelegate {
                                     case .failure(let error):
                                         print("Storage manager error : \(error)")
                                     }
-                                    
                                 }
-                                
                             }.resume()
-                            
                         }
-                        
                     }
-                    
                 }
                 //else if he exists complete the login in without saving the user data
             }
@@ -456,8 +446,8 @@ extension LoginViewController: LoginButtonDelegate {
                 }
                 
                 print("successfully logged user in")
+                //ConversationsViewController.startListenToConversationsAgain = true
                 strongSelf.navigationController?.dismiss(animated: true, completion: nil)
-                
             }
             
         }

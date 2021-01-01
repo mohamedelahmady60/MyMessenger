@@ -47,7 +47,7 @@ class LoginViewController: UIViewController {
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor.lightGray.cgColor
         textField.placeholder = "Email Address..."
-        textField.backgroundColor = .white
+        textField.backgroundColor = .secondarySystemBackground
         // to solve the left typing issue
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
         textField.leftViewMode = .always
@@ -63,7 +63,7 @@ class LoginViewController: UIViewController {
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor.lightGray.cgColor
         textField.placeholder = "Password..."
-        textField.backgroundColor = .white
+        textField.backgroundColor = .secondarySystemBackground
         textField.isSecureTextEntry = true
         // to solve the left typing issue
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
@@ -86,12 +86,15 @@ class LoginViewController: UIViewController {
     private let facebookLoginButton: FBLoginButton = {
         let button = FBLoginButton()
         button.permissions = ["email,public_profile"]
+        button.layer.cornerRadius = 12
+        button.layer.masksToBounds = true
         return button
     }()
     
     private let googleLoginButton: GIDSignInButton = {
         let button = GIDSignInButton()
-        
+        button.layer.cornerRadius = 12
+        button.layer.masksToBounds = true
         return button
     }()
     
@@ -132,7 +135,7 @@ class LoginViewController: UIViewController {
         
         //set title and view color
         title = "Log in "
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         //set alerts
         alerts.append(Alert(tille: "Invalid Passsword", message: "Password must be at least 6 characters long"))

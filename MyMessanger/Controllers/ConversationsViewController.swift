@@ -104,11 +104,10 @@ class ConversationsViewController: UIViewController {
                     return
                 }
                 strongSelf.conversations = conversations
+                strongSelf.noConversationsLabel.isHidden = true
+                strongSelf.tableview.isHidden = false
                 DispatchQueue.main.async {
                     strongSelf.tableview.reloadData()
-                    strongSelf.noConversationsLabel.isHidden = true
-                    strongSelf.tableview.isHidden = false
-                    
                 }
             case .failure(let error):
                 print("Failed to get conversations: \(error)")

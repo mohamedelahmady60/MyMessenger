@@ -8,6 +8,7 @@
 import Foundation
 import FirebaseDatabase
 import MessageKit
+import CoreLocation
 
 final class DatabaseManager {
     
@@ -330,7 +331,20 @@ extension DatabaseManager {
                 }
                 // location
                 else if messageType == "location" {
-                    //TODO: complete this
+                    // get the longitude and the latiude
+                    // remove the comma between the longitude and latitude
+                    let locationComponent = content.components(separatedBy: ",")
+                    
+                    guard let longitude = Double(locationComponent[0]),
+                          let latitude = Double(locationComponent[1]) else {
+                        return nil
+                    }
+                    
+                    // create the LocationItem
+                    let location = CLLocation(latitude: latitude, longitude: longitude)
+                    let locationItem = LocationMediaItem(location: location,
+                                                         size: CGSize(width: 300, height: 300))
+                    messageKind = .location(locationItem)
                 }
                 guard let finalMessageKind = messageKind else {
                     return nil
@@ -357,7 +371,6 @@ extension DatabaseManager {
         
         guard let currentEmail = UserDefaults.standard.value(forKey: "email") as? String,
               let currentUserName = UserDefaults.standard.value(forKey: "name") as? String else {
-            print("OOOOPPPPPSSSS")
             completion(false)
             return
         }
@@ -366,6 +379,7 @@ extension DatabaseManager {
         let messageDate = newMessage.sentDate
         let messageDateString = ChatViewController.dateFormatter.string(from: messageDate)
         let messageContent = getMessageContent(message: newMessage)
+        
         let newMessageEntry: [String: Any] = [
             "id": newMessage.messageId,
             "type": newMessage.kind.string,
@@ -519,9 +533,12 @@ extension DatabaseManager {
             if let targetUrlString = mediaItem.url?.absoluteString {
                 return targetUrlString
             }
-
-        case .location(_):
-            break
+        case .location(let locationItem):
+            let location = locationItem.location
+            let longitude = location.coordinate.longitude
+            let latitude = location.coordinate.latitude
+            // the message content form will be
+            return "\(longitude),\(latitude)"
         case .emoji(_):
             break
         case .audio(_):

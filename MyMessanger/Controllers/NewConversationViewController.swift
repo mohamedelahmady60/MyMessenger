@@ -55,7 +55,7 @@ class NewConversationViewController: UIViewController {
         super.viewDidLoad()
 
         //set the view color
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         //set the table view delegate and dataSource
         tableView.delegate = self

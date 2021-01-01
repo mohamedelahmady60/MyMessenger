@@ -53,7 +53,7 @@ class RegisterViewController: UIViewController {
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor.lightGray.cgColor
         textField.placeholder = "First Name..."
-        textField.backgroundColor = .white
+        textField.backgroundColor = .secondarySystemBackground
         // to solve the left typing issue
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
         textField.leftViewMode = .always
@@ -69,7 +69,7 @@ class RegisterViewController: UIViewController {
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor.lightGray.cgColor
         textField.placeholder = "Last Name..."
-        textField.backgroundColor = .white
+        textField.backgroundColor = .secondarySystemBackground
         // to solve the left typing issue
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
         textField.leftViewMode = .always
@@ -87,7 +87,7 @@ class RegisterViewController: UIViewController {
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor.lightGray.cgColor
         textField.placeholder = "Email Address..."
-        textField.backgroundColor = .white
+        textField.backgroundColor = .secondarySystemBackground
         // to solve the left typing issue
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
         textField.leftViewMode = .always
@@ -103,7 +103,7 @@ class RegisterViewController: UIViewController {
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor.lightGray.cgColor
         textField.placeholder = "Password..."
-        textField.backgroundColor = .white
+        textField.backgroundColor = .secondarySystemBackground
         textField.isSecureTextEntry = true
         // to solve the left typing issue
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
@@ -140,7 +140,7 @@ class RegisterViewController: UIViewController {
         
         //set the navigation title and the view color
         title = "Register"
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         //give an action to the login button
         registerButton.addTarget(self, action: #selector(didTapRegisterButton), for: .touchUpInside)
@@ -276,6 +276,9 @@ class RegisterViewController: UIViewController {
                     print("Error Creating new User\(error.debugDescription)")
                     return
                 }
+                // cash the user email and data
+                UserDefaults.standard.setValue(email, forKey: "email")
+                UserDefaults.standard.setValue("\(firstName) \(lastName)", forKey: "name")
                 
                 // save the user data in the database
                 let chatAppUser = ChatAppUser(firstName: firstName,
@@ -306,9 +309,6 @@ class RegisterViewController: UIViewController {
                         }
                     }
                 }
-                
-                
-                
                 //Dismiss the register view to get back to conversations view
                 strongSelf.navigationController?.dismiss(animated: true, completion: nil)
             })

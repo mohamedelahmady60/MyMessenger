@@ -45,3 +45,10 @@ this is a mobile messaging app used for instant messaging,  sharing photos, vide
 
 ![Screen Shot 2021-01-02 at 2 10 50 PM](https://user-images.githubusercontent.com/39662661/103457048-74d11700-4d04-11eb-9739-dfaff066e578.png)
 ![Screen Shot 2021-01-02 at 2 11 14 PM](https://user-images.githubusercontent.com/39662661/103457052-7bf82500-4d04-11eb-9777-f04302fc9c0f.png)
+
+- At last you can delete a conversation by swipping left, Also creating a new conversation by searching by user name.
+
+
+![Screen Shot 2021-01-02 at 2 22 41 PM](https://user-images.githubusercontent.com/39662661/103457261-510ed080-4d06-11eb-82b0-35a35c373e76.png)
+![Screen Shot 2021-01-02 at 2 23 10 PM](https://user-images.githubusercontent.com/39662661/103457262-53712a80-4d06-11eb-88da-72ac8f8038aa.png)
+

@@ -1,5 +1,5 @@
 ## Messenger Real Time Chat App
-this is a mobile messaging app used for instant messaging,  sharing photos, videos, and locations.
+This is a mobile messaging app used for instant messaging,  sharing photos, videos, and locations.
 
 ## Features
 

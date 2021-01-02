@@ -275,7 +275,7 @@ extension DatabaseManager {
         }
         let safeEmail = ChatAppUser.safeEmail(emailAddress: email)
         // 2- get all the conversations to the current email
-        database.child("\(safeEmail)/conversations").observe(.value, with: { snapshot in
+        database.child("\(safeEmail)/conversations").observeSingleEvent(of: .value, with: { snapshot in
             guard let value = snapshot.value as? [[String: Any]] else {
                 completion(.failure(DatabaseErrors.failedToFetch))
                 return

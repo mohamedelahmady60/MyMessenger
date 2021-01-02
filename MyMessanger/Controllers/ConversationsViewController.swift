@@ -39,10 +39,9 @@ final class ConversationsViewController: UIViewController {
     private var conversations = [Conversation]()
     
     
-    //2 - Define these variables
     private var timer = Timer()
 
-    //public static var startListenToConversationsAgain: Bool = false
+    public static var comesFromLoginOrRegister: Bool = false
     
     //MARK: - viewDidLoad
     override func viewDidLoad() {
@@ -60,8 +59,6 @@ final class ConversationsViewController: UIViewController {
         view.addSubview(tableview)
         view.addSubview(noConversationsLabel)
 
-        // start listen to all conversations
-        startListeningForConversations()
     }
 
 
@@ -73,6 +70,20 @@ final class ConversationsViewController: UIViewController {
         //check if the user is already logged in
         validateAuth()
         
+    }
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        
+        if ConversationsViewController.comesFromLoginOrRegister == true {
+            conversations.removeAll()
+            tableview.isHidden = true
+            DispatchQueue.main.async {
+                self.tableview.reloadData()
+            }
+        }
+        // fetch all the conversations
+        fetchAllTheConversations()
     }
     
     //MARK: - viewDidLayoutSubviews
@@ -91,8 +102,9 @@ final class ConversationsViewController: UIViewController {
     
     //MARK: - Functions
     
-    private func startListeningForConversations() {
-        //conversations.removeAll()
+    private func fetchAllTheConversations() {
+        
+        
         DatabaseManager.shared.getAllConversation(completion: { [weak self] result in
             guard let strongSelf = self else {
                 return
@@ -105,8 +117,17 @@ final class ConversationsViewController: UIViewController {
                     return
                 }
                 strongSelf.conversations = conversations
-                strongSelf.noConversationsLabel.isHidden = true
-                strongSelf.tableview.isHidden = false
+                if ConversationsViewController.comesFromLoginOrRegister {
+                    // start a timer
+                    strongSelf.spinner.show(in: strongSelf.view)
+                    strongSelf.timer = Timer.scheduledTimer(timeInterval: 1.0, target: strongSelf, selector: #selector(strongSelf.timerISR), userInfo: nil, repeats: false)
+                    ConversationsViewController.comesFromLoginOrRegister = false
+                }
+                else {
+                    strongSelf.noConversationsLabel.isHidden = true
+                    strongSelf.tableview.isHidden = false
+                }
+                
                 DispatchQueue.main.async {
                     strongSelf.tableview.reloadData()
                 }
@@ -122,6 +143,7 @@ final class ConversationsViewController: UIViewController {
     
     @objc private func timerISR() {
         timer.invalidate()
+        spinner.dismiss()
         noConversationsLabel.isHidden = true
         tableview.isHidden = false
     }

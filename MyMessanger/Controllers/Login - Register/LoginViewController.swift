@@ -121,7 +121,8 @@ final class LoginViewController: UIViewController {
             guard let strongSelf = self else {
                 return
             }
-            //ConversationsViewController.startListenToConversationsAgain = true
+            ConversationsViewController.comesFromLoginOrRegister = true
+            ProfileViewController.comesFromLoginOrRegister = true
             strongSelf.navigationController?.dismiss(animated: true, completion: nil)
         }
         
@@ -285,23 +286,18 @@ final class LoginViewController: UIViewController {
  
             //save the user's email address
             UserDefaults.standard.setValue(email, forKey: "email")
-            //ConversationsViewController.startListenToConversationsAgain = true
+            ConversationsViewController.comesFromLoginOrRegister = true
+            ProfileViewController.comesFromLoginOrRegister = true
             strongSelf.navigationController?.dismiss(animated: true, completion: nil)
-            
-            
-            //TODO: complete login checks
-            
         })
-        
-        
     }
+    
     
     @objc private func didTapRegisterButton () {
         //jump to register page
         let nextVC = RegisterViewController()
         nextVC.title = "Create Account"
         navigationController?.pushViewController(nextVC, animated: true)
-        
     }
     
     
@@ -456,7 +452,8 @@ extension LoginViewController: LoginButtonDelegate {
                 }
                 
                 print("successfully logged user in")
-                //ConversationsViewController.startListenToConversationsAgain = true
+                ConversationsViewController.comesFromLoginOrRegister = true
+                ProfileViewController.comesFromLoginOrRegister = true
                 strongSelf.navigationController?.dismiss(animated: true, completion: nil)
             }
             

@@ -310,16 +310,11 @@ final class RegisterViewController: UIViewController {
                     }
                 }
                 //Dismiss the register view to get back to conversations view
+                ConversationsViewController.comesFromLoginOrRegister = true
+                ProfileViewController.comesFromLoginOrRegister = true 
                 strongSelf.navigationController?.dismiss(animated: true, completion: nil)
             })
-            
-            
         })
-        
-        
-        //TODO: Complete register checks
-        
-        
     }
     
     

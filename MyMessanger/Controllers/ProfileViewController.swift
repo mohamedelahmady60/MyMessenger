@@ -10,7 +10,7 @@ import FirebaseAuth
 import FBSDKLoginKit
 import GoogleSignIn
 import SDWebImage
-
+import JGProgressHUD
 
 
 final class ProfileViewController: UIViewController {
@@ -21,7 +21,13 @@ final class ProfileViewController: UIViewController {
     //MARK: - profile data
     var data = [ProfileViewModel]()
     
-    
+    public static var comesFromLoginOrRegister: Bool = false
+
+    //MARK: - Spinner
+    let spinner = JGProgressHUD(style: .dark)
+
+    private var timer = Timer()
+
     //MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,16 +35,12 @@ final class ProfileViewController: UIViewController {
         // register the table view cell
         tableview.register(profileTableViewCell.self, forCellReuseIdentifier: profileTableViewCell.identifier)
         
-        // append the profile data
         let userName = UserDefaults.standard.value(forKey: "name") as? String
-        data.append(ProfileViewModel(viewModelType: .info,
-                                     title: "Name: \(userName ?? "No name")", handler: nil))
-        
         let userEmail = UserDefaults.standard.value(forKey: "email") as? String
-        data.append(ProfileViewModel(viewModelType: .info,
-                                     title: "Email: \(userEmail ?? "No Email")", handler: nil))
 
-        
+        data.append(ProfileViewModel(viewModelType: .info, title: "\(userName ?? "No name")", handler: nil))
+        data.append(ProfileViewModel(viewModelType: .info, title: "Email: \(userEmail ?? "No Email")", handler: nil))
+        data.append(ProfileViewModel(viewModelType: .info, title: "", handler: nil))
         data.append(ProfileViewModel(viewModelType: .logout, title: "Log Out", handler: { [weak self] in
             self?.didTapLogout()
         }))
@@ -55,6 +57,41 @@ final class ProfileViewController: UIViewController {
         
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        if ProfileViewController.comesFromLoginOrRegister {
+            
+            tableview.isHidden = true
+
+            spinner.show(in: view)
+            
+            // start a timer
+            timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(timerISR), userInfo: nil, repeats: false)
+
+            // upload the profile pic
+            //set the table view header
+            tableview.tableHeaderView = createTableHeader()
+            ProfileViewController.comesFromLoginOrRegister = false
+        }
+    }
+    
+    
+    @objc private func timerISR() {
+        timer.invalidate()
+        spinner.dismiss()
+        
+        let userName = UserDefaults.standard.value(forKey: "name") as? String
+        data[0] = ProfileViewModel(viewModelType: .info,
+                                   title: "\(userName ?? "No name")", handler: nil)
+        let userEmail = UserDefaults.standard.value(forKey: "email") as? String
+        data[1] = ProfileViewModel(viewModelType: .info,
+                                   title: "Email: \(userEmail ?? "No Email")", handler: nil)
+
+        DispatchQueue.main.async {
+            self.tableview.reloadData()
+        }
+        tableview.isHidden = false
+    }
+
     
     //MARK: - Actions
     private func didTapLogout() {
@@ -110,7 +147,7 @@ final class ProfileViewController: UIViewController {
                                               y: 0,
                                               width: self.view.width,
                                               height: self.view.height / 4.0))
-        headerView.backgroundColor = .link
+        headerView.backgroundColor = .white
         let imageViewWidth = headerView.width / 3.0
         let imageView = UIImageView(frame: CGRect(x:  (headerView.width - imageViewWidth) / 2.0,
                                                   y:  (headerView.height - imageViewWidth) / 2.0,
@@ -173,10 +210,13 @@ class profileTableViewCell: UITableViewCell {
     public func setup(viewModel: ProfileViewModel) {
         
         self.textLabel?.text = viewModel.title
+        self.textLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+
         
         switch viewModel.viewModelType {
         case .info:
-            self.textLabel?.textAlignment = .left
+            self.textLabel?.textColor = .link
+            self.textLabel?.textAlignment = .center
             self.selectionStyle = .none
         case .logout:
             self.textLabel?.textColor = .red

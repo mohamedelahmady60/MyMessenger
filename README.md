@@ -53,3 +53,11 @@ this is a mobile messaging app used for instant messaging,  sharing photos, vide
 ![Screen Shot 2021-01-02 at 2 22 41 PM](https://user-images.githubusercontent.com/39662661/103457261-510ed080-4d06-11eb-82b0-35a35c373e76.png)
 ![Screen Shot 2021-01-02 at 2 23 10 PM](https://user-images.githubusercontent.com/39662661/103457262-53712a80-4d06-11eb-88da-72ac8f8038aa.png)
 
+
+- You can also switch to dark mode if you like using it.
+
+
+![Screen Shot 2021-01-02 at 2 28 48 PM](https://user-images.githubusercontent.com/39662661/103457391-9c75ae80-4d07-11eb-9590-a17197643f5f.png)
+![Screen Shot 2021-01-02 at 2 28 20 PM](https://user-images.githubusercontent.com/39662661/103457393-9f709f00-4d07-11eb-929b-7b15e4821c92.png)
+
+

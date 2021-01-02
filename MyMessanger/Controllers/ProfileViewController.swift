@@ -13,14 +13,13 @@ import SDWebImage
 
 
 
-class ProfileViewController: UIViewController {
+final class ProfileViewController: UIViewController {
     
     //MARK: - table view
     @IBOutlet var tableview: UITableView!
     
     //MARK: - profile data
     var data = [ProfileViewModel]()
-    
     
     
     //MARK: - viewDidLoad
@@ -184,17 +183,4 @@ class profileTableViewCell: UITableViewCell {
             self.textLabel?.textAlignment = .center
         }
     }
-}
-
-
-
-//MARK: - profile data models
-enum ProfileViewModelType {
-    case info, logout
-}
-
-struct ProfileViewModel {
-    let viewModelType: ProfileViewModelType
-    let title: String
-    let handler: (() -> Void)?
 }

@@ -8,7 +8,7 @@
 import UIKit
 import JGProgressHUD
 
-class NewConversationViewController: UIViewController {
+final class NewConversationViewController: UIViewController {
 
     //MARK: - search bar
     private let searchBar: UISearchBar = {
@@ -110,7 +110,7 @@ extension NewConversationViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         
         //remove the keyboard
-        self.searchBar.resignFirstResponder()
+        searchBar.resignFirstResponder()
         
         // check there is text and remove its spaces
         guard let text = searchBar.text, !text.replacingOccurrences(of:" ", with: "").isEmpty else {
@@ -119,7 +119,7 @@ extension NewConversationViewController: UISearchBarDelegate {
         //remove all the previous results
         results.removeAll()
         spinner.show(in: view)
-        self.searchUsers(query: text)
+        searchUsers(query: text)
     }
     
     
@@ -135,13 +135,17 @@ extension NewConversationViewController: UISearchBarDelegate {
         else {
             //if not: fetch the the users from database and then seach for the query
             DatabaseManager.shared.getAllUsers(completion: { [weak self] result in
+                guard let strongSelf = self else {
+                    return
+                }
+
                 switch result {
                 case .failure(let error):
                     print("Failed to get users: \(error)")
                 case .success(let usersCollection):
-                    self?.hasFetchedUsers = true
-                    self?.users = usersCollection
-                    self?.filterUsers(searchName: query)
+                    strongSelf.hasFetchedUsers = true
+                    strongSelf.users = usersCollection
+                    strongSelf.filterUsers(searchName: query)
                 }
             })
         }
@@ -225,12 +229,4 @@ extension NewConversationViewController: UITableViewDelegate, UITableViewDataSou
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 90
     }
-}
-
-
-
-//MARK: - Serach results Model
-struct SearchResults {
-    let recipientName: String
-    let recipientEmail: String
 }

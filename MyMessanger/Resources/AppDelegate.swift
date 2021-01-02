@@ -11,7 +11,7 @@ import FBSDKCoreKit
 import GoogleSignIn
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(
         _ application: UIApplication,
@@ -51,7 +51,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
     }
     
     
-    //MARK: - google sign in
+    
+    
+    
+}
+
+
+//MARK: - GIDSignInDelegate
+extension AppDelegate: GIDSignInDelegate {
+ 
+    //MARK: - Google sign in 
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
         
         if let  error = error {
@@ -152,7 +161,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         // Perform any operations when the user disconnects from app here.
         print("Google user was disconnected")
     }
-    
-    
-    
+
 }

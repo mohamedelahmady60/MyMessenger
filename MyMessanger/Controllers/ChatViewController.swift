@@ -12,7 +12,7 @@ import AVFoundation
 import AVKit
 import CoreLocation
 
-class ChatViewController: MessagesViewController {
+final class ChatViewController: MessagesViewController {
     
     public static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -120,12 +120,6 @@ class ChatViewController: MessagesViewController {
             self?.presentLocationActionSheetOptions()
         }))
 
-        actionSheet.addAction(UIAlertAction(title: "Audio", style: .default, handler: { _ in
-            
-            
-            
-        }))
-        
         actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         
         
@@ -164,7 +158,7 @@ class ChatViewController: MessagesViewController {
                                   kind: .location(locationItem))
             
             // 4- send the message
-            DatabaseManager.shared.sendMessage(conversationId: conversationId, otherUserName: recipientName, oherUserEmail: strongSelf.recipientUserEmail, newMessage: message, completion: {success in
+            DatabaseManager.shared.sendMessage(conversationId: conversationId, recipientUserName: recipientName, recipientUserEmail: strongSelf.recipientUserEmail, newMessage: message, completion: {success in
                 if success {
                     print("Sent location successfully")
                 }
@@ -312,7 +306,7 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
                                           messageId: messageId,
                                           sentDate: Date(),
                                           kind: .photo(media))
-                    DatabaseManager.shared.sendMessage(conversationId: conversationId, otherUserName: name, oherUserEmail: StrongSelf.recipientUserEmail, newMessage: message, completion: {success in
+                    DatabaseManager.shared.sendMessage(conversationId: conversationId, recipientUserName: name, recipientUserEmail: StrongSelf.recipientUserEmail, newMessage: message, completion: {success in
                         if success {
                             print("Sent Photo successfully")
                         }
@@ -352,7 +346,7 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
                                           messageId: messageId,
                                           sentDate: Date(),
                                           kind: .video(media))
-                    DatabaseManager.shared.sendMessage(conversationId: conversationId, otherUserName: name, oherUserEmail: StrongSelf.recipientUserEmail, newMessage: message, completion: {success in
+                    DatabaseManager.shared.sendMessage(conversationId: conversationId, recipientUserName: name, recipientUserEmail: StrongSelf.recipientUserEmail, newMessage: message, completion: {success in
                         if success {
                             print("Sent Photo successfully")
                         }
@@ -395,7 +389,7 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
         // send messege
         if isNewconversation {
             // create new conversation
-            DatabaseManager.shared.createNewConversation(otherUserEmail: recipientUserEmail, otherUserName: self.title ?? "user", firstMessage: message, completion: {[weak self] success in
+            DatabaseManager.shared.createNewConversation(recipientUserEmail: recipientUserEmail, recipientUserName: self.title ?? "user", firstMessage: message, completion: { [weak self] success in
                 
                 if success {
                     print("Message sent")
@@ -415,7 +409,7 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
                   let name = self.title else {
                 return
             }
-            DatabaseManager.shared.sendMessage(conversationId: conversId, otherUserName: name, oherUserEmail: recipientUserEmail, newMessage: message, completion: { [weak self] success in
+            DatabaseManager.shared.sendMessage(conversationId: conversId, recipientUserName: name, recipientUserEmail: recipientUserEmail, newMessage: message, completion: { [weak self] success in
                 if success {
                     print("Message Sent")
                     self?.messageInputBar.inputTextView.text = nil
@@ -596,7 +590,6 @@ extension ChatViewController: MessageCellDelegate {
             // present the vc
             self.navigationController?.pushViewController(vc, animated: true)
             
-            
         default:
             break
         }
@@ -605,64 +598,3 @@ extension ChatViewController: MessageCellDelegate {
 
 } // end of extension
 
-
-
-//MARK: - Message Kind extension
-extension MessageKind {
-    
-    var string: String {
-        
-        switch self {
-        case .text(_):
-            return "text"
-        case .attributedText(_):
-            return "attributed_text"
-        case .photo(_):
-            return "photo"
-        case .video(_):
-            return "video"
-        case .location(_):
-            return "location"
-        case .emoji(_):
-            return "emoji"
-        case .audio(_):
-            return "audio"
-        case .contact(_):
-            return "contact"
-        case .linkPreview(_):
-            return "link_preview"
-        case .custom(_):
-            return "custom"
-        }
-    }
-}
-
-
-
-//MARK: - define the message model that comes from MessageKit
-struct Message: MessageType {
-    var sender: SenderType
-    var messageId: String
-    var sentDate: Date
-    var kind: MessageKind
-}
-
-
-struct Sender: SenderType {
-    var photoURL: String
-    var senderId: String
-    var displayName: String
-}
-
-struct Media: MediaItem {
-    var url: URL?
-    var image: UIImage?
-    var placeholderImage: UIImage
-    var size: CGSize
-}
-
-
-struct LocationMediaItem: LocationItem {
-    var location: CLLocation
-    var size: CGSize
-}

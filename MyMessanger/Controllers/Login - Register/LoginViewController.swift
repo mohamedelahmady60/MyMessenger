@@ -11,7 +11,7 @@ import FBSDKLoginKit
 import GoogleSignIn
 import JGProgressHUD
 
-class LoginViewController: UIViewController {
+final class LoginViewController: UIViewController {
     
     //MARK: - Variables
     private enum AlerType: Int {
@@ -19,8 +19,13 @@ class LoginViewController: UIViewController {
         case LoginEmptyEmailOrPassword = 1
     }
     
-    private var alerts: [Alert] = []
-    
+    //MARK: - alets
+    private var alerts: [Alert] = [
+        Alert(tille: "Invalid Passsword", message: "Password must be at least 6 characters long"),
+        Alert(tille: "Invalid Email or Password", message: "Enter your email and your Password to log in")
+    ]
+
+
     
     //MARK: - images
     private let logoImageView: UIImageView = {
@@ -136,11 +141,7 @@ class LoginViewController: UIViewController {
         //set title and view color
         title = "Log in "
         view.backgroundColor = .systemBackground
-        
-        //set alerts
-        alerts.append(Alert(tille: "Invalid Passsword", message: "Password must be at least 6 characters long"))
-        alerts.append(Alert(tille: "Invalid Email or Password", message: "Enter your email and your Password to log in"))
-        
+                
         
         //create the top button to go to register view controller
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Register",
@@ -355,8 +356,14 @@ extension LoginViewController: LoginButtonDelegate {
                                                          tokenString: token,
                                                          version: nil,
                                                          httpMethod: .get)
+        
         //start the request
-        facebookrequest.start { (_, result, error) in
+        facebookrequest.start { [weak self] (_, result, error) in
+            
+            guard let strongSelf = self else {
+                return
+            }
+
             guard let result = result as? [String: Any], error == nil else  {
                 print("Failed to make facebook graph request")
                 return
@@ -380,7 +387,7 @@ extension LoginViewController: LoginButtonDelegate {
 
             
             //show the spinner
-            self.spinner.show(in: self.view)
+            strongSelf.spinner.show(in: strongSelf.view)
             
             
             //check if this user is exists in the database

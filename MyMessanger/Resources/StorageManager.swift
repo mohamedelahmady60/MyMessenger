@@ -8,6 +8,8 @@
 import Foundation
 import FirebaseStorage
 
+
+/// Alows you to get, fetch, and upload files to firebase storage 
 final class StrorageManager {
     
     static let shared = StrorageManager()
@@ -88,7 +90,7 @@ final class StrorageManager {
     
     /// get the download url
     public func downloadURL(path: String, completion: @escaping (Result<URL, Error>) -> Void) {
-        self.storage.child(path).downloadURL { (url, error) in
+        storage.child(path).downloadURL { (url, error) in
             guard let url = url else {
                 print("Failed to get download url")
                 completion(.failure(StorageErrors.failedToGetDownloadURL))

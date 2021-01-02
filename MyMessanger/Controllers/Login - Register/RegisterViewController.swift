@@ -9,7 +9,7 @@ import UIKit
 import FirebaseAuth
 import JGProgressHUD
 
-class RegisterViewController: UIViewController {
+final class RegisterViewController: UIViewController {
     
     //MARK: - Variables
     private enum AlerType: Int {
@@ -427,7 +427,7 @@ extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationC
         //let selectedImage = info[UIImagePickerController.InfoKey.originalImage]
         
         //update the user image view
-        self.userImageView.image = selectedImage
+        userImageView.image = selectedImage
         //dismiss the picker view
         picker.dismiss(animated: true, completion: nil)
     }

@@ -9,7 +9,7 @@ import UIKit
 import FirebaseAuth
 import JGProgressHUD
 
-class ConversationsViewController: UIViewController {
+final class ConversationsViewController: UIViewController {
     
     
    //MARK: - tableview
@@ -72,6 +72,7 @@ class ConversationsViewController: UIViewController {
         
         //check if the user is already logged in
         validateAuth()
+        
     }
     
     //MARK: - viewDidLayoutSubviews
@@ -91,7 +92,7 @@ class ConversationsViewController: UIViewController {
     //MARK: - Functions
     
     private func startListeningForConversations() {
-        //self.conversations.removeAll()
+        //conversations.removeAll()
         DatabaseManager.shared.getAllConversation(completion: { [weak self] result in
             guard let strongSelf = self else {
                 return
@@ -255,13 +256,15 @@ extension ConversationsViewController: UITableViewDelegate, UITableViewDataSourc
             // 1 - begin delete
             tableview.beginUpdates()
             
-            // 2- delete the conversation from the database
+
+            // 2- delete the conversation from the tableview
             let currentConversation = conversations[indexPath.row]
-            DatabaseManager.shared.deleteConversation(conversationId: currentConversation.id, completion: { [weak self] success in
-                if success{
-                    // 3- delete the conversation from the tableview
-                    self?.conversations.remove(at: indexPath.row)
-                    self?.tableview.deleteRows(at: [indexPath], with: .left)
+            conversations.remove(at: indexPath.row)
+            tableview.deleteRows(at: [indexPath], with: .left)
+            // 3- delete the conversation from the database
+            DatabaseManager.shared.deleteConversation(conversationId: currentConversation.id, completion: { success in
+                if !success{
+                    print("can't delete the message")
                 }
             })
             // 4 - end delete
@@ -271,16 +274,3 @@ extension ConversationsViewController: UITableViewDelegate, UITableViewDataSourc
     
 }
 
-
-struct Conversation {
-    let id: String
-    let recipientName: String
-    let recipientEmail: String
-    let latestMessege: LatestMessege
-}
-
-struct LatestMessege {
-    let date: String
-    let text: String
-    let isRead: Bool
-}
